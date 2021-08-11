@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
     // 替换成你自己项目的 App ID。
     appId: '6c56c8e6e5bc4dc88ebe943602bb0aef',
     // 传入目标频道名。
-    channel: 'test1',
+    channel: 'testJames',
     // 如果你的项目开启了 App 证书进行 Token 鉴权，这里填写生成的 Token 值。
     token: null,
   };
