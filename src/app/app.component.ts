@@ -9,6 +9,7 @@ import AgoraRTC from 'agora-rtc-sdk-ng';
 export class AppComponent implements OnInit {
   title = 'mabowClubStudent';
 
+  channel: string;
   uid: string;
 
   rtc = {
@@ -33,7 +34,9 @@ export class AppComponent implements OnInit {
 
   async startBasicCall() {
     this.rtc.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-    const uid = await this.rtc.client.join(this.options.appId, this.options.channel, this.options.token, this.uid);
+    console.log(this.channel, this.uid);
+
+    const uid = await this.rtc.client.join(this.options.appId, this.channel, this.options.token, this.uid);
 
     // 通过麦克风采集的音频创建本地音频轨道对象。
     this.rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
@@ -57,8 +60,8 @@ export class AppComponent implements OnInit {
         const playerContainer = document.createElement('div');
         // 给这个 DIV 节点指定一个 ID，这里指定的是远端用户的 UID。
         playerContainer.id = user.uid.toString();
-        playerContainer.style.width = '640px';
-        playerContainer.style.height = '480px';
+        playerContainer.style.width = '133px';
+        playerContainer.style.height = '100px';
         document.body.append(playerContainer);
 
         // 订阅完成，播放远端音视频。
@@ -77,19 +80,46 @@ export class AppComponent implements OnInit {
         remoteAudioTrack.play();
       }
     });
+    this.rtc.client.on('user-unpublished', (user, mediaType) => {
+      if (mediaType === 'video') {
+        // 获取刚刚动态创建的 DIV 节点。
+        const playerContainer = document.getElementById(user.uid.toString());
+        // 销毁这个节点。
+        playerContainer.remove();
+      }
+    });
   }
 
-  publishVideo() {
-    this.rtc.client.publish(this.rtc.localVideoTrack);
+  async publishVideo() {
+    await this.rtc.client.publish(this.rtc.localVideoTrack);
   }
 
-  unpublishVideo() {
-    this.rtc.client.unpublish(this.rtc.localVideoTrack);
+  async unpublishVideo() {
+    await this.rtc.client.unpublish(this.rtc.localVideoTrack);
+  }
+
+  async publishAudio() {
+    await this.rtc.client.publish(this.rtc.localAudioTrack);
+  }
+
+  async unpublishAudio() {
+    await this.rtc.client.unpublish(this.rtc.localAudioTrack);
   }
 
 
 
-  leaveChannel() {
-    this.rtc.client.leave();
+  async leaveChannel() {
+    // 销毁本地音视频轨道。
+    this.rtc.localAudioTrack.close();
+    this.rtc.localVideoTrack.close();
+
+    // 遍历远端用户。
+    this.rtc.client.remoteUsers.forEach(user => {
+      // 销毁动态创建的 DIV 节点。
+      const playerContainer = document.getElementById(user.uid);
+      playerContainer && playerContainer.remove();
+    });
+
+    await this.rtc.client.leave();
   }
 }

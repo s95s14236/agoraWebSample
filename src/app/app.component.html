@@ -1,5 +1,12 @@
-<button (click)="publishVideo()">publish video</button>
-<button (click)="unpublishVideo()">unpublish video</button>
-<input [(ngModel)]="uid" />
-<button (click)="startBasicCall()">join Channel</button>
-<button (click)="leaveChannel()">leave Channel</button>
+<div class="root">
+  channel:
+  <input [(ngModel)]="channel" />
+  uid
+  <input [(ngModel)]="uid" />
+  <button (click)="startBasicCall()">join Channel</button>
+  <button (click)="leaveChannel()">leave Channel</button>
+  <button (click)="publishVideo()">publish video</button>
+  <button (click)="unpublishVideo()">unpublish video</button>
+  <button (click)="publishAudio()">publish audio</button>
+  <button (click)="unpublishAudio()">unpublish audio</button>
+</div>
