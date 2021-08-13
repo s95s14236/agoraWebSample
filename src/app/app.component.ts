@@ -36,18 +36,8 @@ export class AppComponent implements OnInit {
     this.rtc.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
     console.log(this.channel, this.uid);
 
-    const uid = await this.rtc.client.join(this.options.appId, this.channel, this.options.token, this.uid);
-
-    // 通过麦克风采集的音频创建本地音频轨道对象。
-    this.rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    // 通过摄像头采集的视频创建本地视频轨道对象。
-    this.rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack();
-    // 将这些音视频轨道对象发布到频道中。
-    await this.rtc.client.publish([this.rtc.localAudioTrack, this.rtc.localVideoTrack]);
-
-    console.log('publish success!');
-
     this.rtc.client.on('user-published', async (user, mediaType) => {
+      console.log(user);
       // 开始订阅远端用户。
       await this.rtc.client.subscribe(user, mediaType);
       console.log('subscribe success');
@@ -60,8 +50,8 @@ export class AppComponent implements OnInit {
         const playerContainer = document.createElement('div');
         // 给这个 DIV 节点指定一个 ID，这里指定的是远端用户的 UID。
         playerContainer.id = user.uid.toString();
-        playerContainer.style.width = '133px';
-        playerContainer.style.height = '100px';
+        playerContainer.style.width = '399px';
+        playerContainer.style.height = '300px';
         document.body.append(playerContainer);
 
         // 订阅完成，播放远端音视频。
@@ -81,6 +71,8 @@ export class AppComponent implements OnInit {
       }
     });
     this.rtc.client.on('user-unpublished', (user, mediaType) => {
+      console.log(user);
+
       if (mediaType === 'video') {
         // 获取刚刚动态创建的 DIV 节点。
         const playerContainer = document.getElementById(user.uid.toString());
@@ -88,6 +80,19 @@ export class AppComponent implements OnInit {
         playerContainer.remove();
       }
     });
+
+    const uid = await this.rtc.client.join(this.options.appId, this.channel, this.options.token, this.uid);
+
+    // 通过麦克风采集的音频创建本地音频轨道对象。
+    this.rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    // 通过摄像头采集的视频创建本地视频轨道对象。
+    this.rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack();
+    // 将这些音视频轨道对象发布到频道中。
+    await this.rtc.client.publish([this.rtc.localAudioTrack, this.rtc.localVideoTrack]);
+
+    console.log('publish success!');
+
+
   }
 
   async publishVideo() {
