@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import AgoraRTC from 'agora-rtc-sdk-ng';
+import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +12,7 @@ export class AppComponent implements OnInit {
   channel: string;
   uid: string;
 
-  rtc = {
+  rtc: { client: IAgoraRTCClient, localAudioTrack: IMicrophoneAudioTrack, localVideoTrack: ICameraVideoTrack } = {
     // 用来放置本地客户端。
     client: null,
     // 用来放置本地音视频频轨道对象。
@@ -30,13 +30,14 @@ export class AppComponent implements OnInit {
   };
 
   ngOnInit(): void {
+
   }
 
   async startBasicCall() {
     this.rtc.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
     console.log(this.channel, this.uid);
 
-    const uid = await this.rtc.client.join(this.options.appId, this.channel, this.options.token, this.uid);
+    const uid = await this.rtc.client.join(this.options.appId, this.channel || this.options.channel, this.options.token, this.uid);
 
     // 通过麦克风采集的音频创建本地音频轨道对象。
     this.rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
@@ -116,8 +117,10 @@ export class AppComponent implements OnInit {
     // 遍历远端用户。
     this.rtc.client.remoteUsers.forEach(user => {
       // 销毁动态创建的 DIV 节点。
-      const playerContainer = document.getElementById(user.uid);
+      const playerContainer = document.getElementById(user.uid + '');
       playerContainer && playerContainer.remove();
+
+
     });
 
     await this.rtc.client.leave();
