@@ -9,4 +9,16 @@
   <button (click)="unpublishVideo()">unpublish video</button>
   <button (click)="publishAudio()">publish audio</button>
   <button (click)="unpublishAudio()">unpublish audio</button>
+  <br>
+  <br>
+
+  <span>拿token工具</span>
+  uid:
+  <input [(ngModel)]="getTokenUid" />
+  channel:
+  <input [(ngModel)]="getTokenChannel" />
+  <button (click)="onGetAllTokenClick()">get all token by userId</button>
+  <span>rtcSubscribeToken: {{ allToken?.rtcSubscribeToken }}</span>
+  <span>rtcPublishToken: {{ allToken?.rtcPublishToken }}</span>
+  <span>rtmToken: {{ allToken?.rtmToken }}</span>
 </div>

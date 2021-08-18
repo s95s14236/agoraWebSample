@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
 
@@ -11,6 +12,16 @@ export class AppComponent implements OnInit {
 
   channel: string;
   uid: string;
+  subscribeToken: string;
+  publishToken: string;
+
+  getTokenUid: string;
+  getTokenChannel: string;
+  allToken: {
+    rtcSubscribeToken: any;
+    rtcPublishToken: any;
+    rtmToken: any;
+  };
 
   rtc: { client: IAgoraRTCClient, localAudioTrack: IMicrophoneAudioTrack, localVideoTrack: ICameraVideoTrack } = {
     // 用来放置本地客户端。
@@ -24,18 +35,25 @@ export class AppComponent implements OnInit {
     // 替换成你自己项目的 App ID。
     appId: '6c56c8e6e5bc4dc88ebe943602bb0aef',
     // 传入目标频道名。
+    // channel: 'drI35PgBcT',
     channel: 'testJames',
     // 如果你的项目开启了 App 证书进行 Token 鉴权，这里填写生成的 Token 值。
     token: null,
   };
 
-  ngOnInit(): void {
+  constructor(
+    private httpClient: HttpClient
+  ) {}
 
+  async ngOnInit(): Promise<void> {
   }
 
   async startBasicCall() {
     this.rtc.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
     console.log(this.channel, this.uid);
+
+    const allToken = await this.getAllToken(this.uid , this.channel || this.options.channel);
+    this.options.token = allToken.rtcPublishToken;
 
     const uid = await this.rtc.client.join(this.options.appId, this.channel || this.options.channel, this.options.token, this.uid);
 
@@ -81,6 +99,7 @@ export class AppComponent implements OnInit {
         remoteAudioTrack.play();
       }
     });
+
     this.rtc.client.on('user-unpublished', (user, mediaType) => {
       if (mediaType === 'video') {
         // 获取刚刚动态创建的 DIV 节点。
@@ -89,6 +108,28 @@ export class AppComponent implements OnInit {
         playerContainer.remove();
       }
     });
+
+  }
+
+  public async onGetAllTokenClick() {
+    this.allToken = await this.getAllToken(this.getTokenUid, this.getTokenChannel || this.options.channel);
+  }
+
+  private async getAllToken(userObjectId: string, channelName) {
+    console.log(`userObjectId: `, userObjectId);
+    console.log(`rtcChannelName: `, channelName);
+    const parseSessionToken = '123';   // 目前不需要真的給user session token。
+
+    const getTokenApi = `https://r3i0nshr8a.execute-api.ap-northeast-1.amazonaws.com/prod/?channelName=${channelName}&token=${parseSessionToken}&type=club&account=${userObjectId}&rtm_account=${userObjectId}`;
+
+    const allToken: any = await this.httpClient.get(getTokenApi).toPromise();
+    console.log(`allToken: `, allToken);
+
+    return {
+      rtcSubscribeToken: allToken.s_tokenA,
+      rtcPublishToken: allToken.p_tokenA,
+      rtmToken: allToken.rtm_token
+    };
   }
 
   async publishVideo() {
