@@ -33,10 +33,11 @@ export class AppComponent implements OnInit {
 
   options = {
     // 替换成你自己项目的 App ID。
-    appId: '6c56c8e6e5bc4dc88ebe943602bb0aef',
+    // appId: '6c56c8e6e5bc4dc88ebe943602bb0aef',  // old 用暴了
+    appId: '945832397c7e42109dffdb83113d2084',  // new
     // 传入目标频道名。
     // channel: 'drI35PgBcT',
-    channel: 'testJames',
+    channel: 'testJames1',
     // 如果你的项目开启了 App 证书进行 Token 鉴权，这里填写生成的 Token 值。
     token: null,
   };
@@ -123,7 +124,7 @@ export class AppComponent implements OnInit {
     console.log(`rtcChannelName: `, channelName);
     const parseSessionToken = '123';   // 目前不需要真的給user session token。
 
-    const getTokenApi = `https://r3i0nshr8a.execute-api.ap-northeast-1.amazonaws.com/prod/?channelName=${channelName}&token=${parseSessionToken}&type=club&account=${userObjectId}&rtm_account=${userObjectId}`;
+    const getTokenApi = `https://r3i0nshr8a.execute-api.ap-northeast-1.amazonaws.com/prod?channelName=${channelName}&token=${parseSessionToken}&type=club&account=${userObjectId}&rtm_account=${userObjectId}`;
 
     const allToken: any = await this.httpClient.get(getTokenApi).toPromise();
     console.log(`allToken: `, allToken);
